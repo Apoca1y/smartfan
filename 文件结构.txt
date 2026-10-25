@@ -1,0 +1,140 @@
+智能安防联动风扇系统 - 项目文件结构
+═══════════════════════════════════════════
+
+SmartFan/
+│
+├── 📄 Project.uvprojx          # Keil工程文件（主文件）
+├── 📄 Project.uvoptx           # Keil工程配置
+│
+├── 📖 README.md                # 项目说明文档
+├── 📖 接线说明.md              # 硬件接线图
+├── 📖 功能说明.md              # 任务架构与联动逻辑流程图
+├── 📖 项目总结.md              # 完成总结
+├── 📖 PCB打板说明.md           # PCB打板BOM/网络连接清单/布局建议
+│
+├── 🔧 clean.bat                # 工程清理脚本
+├── 🔧 keilkill.bat             # Keil批处理工具
+│
+├── 📁 Hardware/                # 硬件驱动模块
+│   ├── Motor.c/.h              # ✅ TB6612电机驱动（4档控制）
+│   ├── AHT20.c/.h              # ✅ AHT20/SHT30温湿度传感器（硬件I2C1）
+│   ├── Gas.c/.h                # ✅ MQ-2气体/烟雾传感器（ADC）
+│   ├── PIR.c/.h                # ✅ HC-SR501人体红外传感器
+│   ├── Buzzer.c/.h             # ✅ 有源蜂鸣器报警驱动
+│   ├── Key.c/.h                # ✅ 按键扫描（K1/K2）
+│   ├── PWM.c/.h                # ✅ PWM输出（TIM2_CH1）
+│   ├── OLED.c/.h/.Font.h       # ✅ OLED显示驱动（软件I2C）
+│   ├── ESP8266.c/.h            # ✅ WiFi/云平台通信
+│   └── LED.c/.h                # LED指示灯（可选）
+│
+├── 📁 User/                    # 用户代码（FreeRTOS应用层）
+│   ├── main.c                  # ✅ 初始化+建任务+启动调度器
+│   ├── app_shared.c/.h         # ✅ 共享数据、事件标志组、互斥量
+│   ├── FreeRTOSConfig.h        # ✅ FreeRTOS配置
+│   ├── Task_Safety.c/.h        # ✅ 安防安全任务（最高优先级）
+│   ├── Task_FanControl.c/.h    # ✅ 风扇控制核心任务（事件标志组联动）
+│   ├── Task_Presence.c/.h      # ✅ 人体检测任务
+│   ├── Task_Sensor.c/.h        # ✅ 温湿度采集任务
+│   ├── Task_Display.c/.h       # ✅ OLED显示任务
+│   ├── Task_Cloud.c/.h         # ✅ 云端通信任务
+│   ├── stm32f10x_it.c/.h       # 中断服务函数（SVC/PendSV/SysTick已交由FreeRTOS）
+│   └── stm32f10x_conf.h        # 库配置文件
+│
+├── 📁 System/                  # 系统模块
+│   └── Delay.c/.h              # DWT周期计数器延时函数（不占用SysTick）
+│
+├── 📁 Start/                   # 启动文件
+│   ├── startup_stm32f10x_md.s  # 向量表已映射FreeRTOS的SVC/PendSV/SysTick处理函数
+│   ├── core_cm3.c/.h           # Cortex-M3内核
+│   ├── stm32f10x.h             # STM32寄存器定义
+│   └── system_stm32f10x.c/.h   # 系统时钟配置
+│
+├── 📁 Library/                 # STM32标准外设库 + FreeRTOS内核
+│   ├── [标准外设库文件...]
+│   └── FreeRTOS/               # FreeRTOS V202212.00内核源码（ARM_CM3端口，heap_4）
+│
+├── 📁 Objects/                 # 编译输出目录
+│   └── Project.hex             # 烧录文件（编译后生成）
+│
+└── 📁 Listings/                # 编译列表文件
+    └── [.lst文件...]
+
+═══════════════════════════════════════════
+关键文件说明
+═══════════════════════════════════════════
+
+🎯 核心代码
+├─ Hardware/Motor.c         电机4档控制（TB6612驱动）
+├─ Hardware/AHT20.c         温湿度采集（硬件I2C1）
+├─ Hardware/Gas.c           气体/烟雾采集与报警判定（ADC）
+├─ Hardware/PIR.c           人体检测（HC-SR501）
+├─ Hardware/Buzzer.c        蜂鸣器报警驱动
+├─ Hardware/Key.c           按键扫描（模式+档位/报警确认）
+├─ Hardware/PWM.c           PWM调速（10kHz）
+├─ Hardware/OLED.c          I2C显示驱动
+├─ Hardware/ESP8266.c       WiFi/云平台通信
+├─ User/app_shared.c        共享数据+事件标志组+互斥量
+├─ User/Task_Safety.c       烟雾报警（最高优先级）
+├─ User/Task_FanControl.c   核心决策（事件标志组AND逻辑）
+├─ User/Task_Presence.c     无人计时
+├─ User/Task_Sensor.c       温度超限判定
+├─ User/Task_Display.c      OLED显示+报警闪烁
+├─ User/Task_Cloud.c        云端上传/指令处理
+└─ User/main.c              任务创建+调度器启动
+
+📚 文档
+├─ README.md                项目概述、功能说明、编译指南
+├─ 接线说明.md              详细接线图、引脚分配、调试建议
+├─ 功能说明.md              任务架构、事件标志组联动逻辑、流程图
+├─ 项目总结.md              完成清单、下一步操作、技术支持
+└─ PCB打板说明.md           PCB打板BOM/网络连接清单/布局建议
+
+═══════════════════════════════════════════
+引脚分配速查表
+═══════════════════════════════════════════
+
+PA0  → PWM输出          (TIM2_CH1, 电机调速)
+PA1  → GPIO输出         (TB6612 AIN1)
+PA2  → GPIO输出         (TB6612 AIN2)
+PA4  → ADC输入          (MQ-2气体传感器)
+PA9  → USART1_TX        (ESP8266)
+PA10 → USART1_RX        (ESP8266)
+PB6  → I2C1_SCL(硬件)   (AHT20/SHT30温湿度传感器)
+PB7  → I2C1_SDA(硬件)   (AHT20/SHT30温湿度传感器)
+PB8  → I2C_SCL(软件)    (OLED显示屏)
+PB9  → I2C_SDA(软件)    (OLED显示屏)
+PB13 → GPIO输入(上拉)   (按键K2 - 风力调节)
+PB14 → GPIO输入(上拉)   (按键K1 - 模式切换/报警确认)
+PB11 → GPIO输入(下拉)   (HC-SR501人体红外传感器)
+PB12 → GPIO输出         (有源蜂鸣器，低电平触发)
+
+═══════════════════════════════════════════
+编译步骤
+═══════════════════════════════════════════
+
+1. 打开Keil MDK
+2. File → Open Project
+3. 选择：Project.uvprojx
+4. 点击编译按钮（F7）
+5. 检查编译输出：0 Error, 0 Warning
+6. 烧录hex文件：Objects\Project.hex
+
+═══════════════════════════════════════════
+功能验证清单
+═══════════════════════════════════════════
+
+□ OLED显示正常（温度、湿度、模式、人体状态、风扇状态、档位、气体读数）
+□ 按键K1切换模式（Auto ↔ Manual）
+□ 按键K2调节风力（OFF → LOW → MID → HIGH）
+□ AHT20温湿度读取正常
+□ PIR人体检测正常（人靠近/离开触发变化）
+□ 无人3秒后按温度决策（超温全速/正常低速）
+□ MQ-2检测到烟雾时电机立即停转，OLED闪烁报警，蜂鸣器同步鸣响
+□ 报警状态下按K1可确认解除，蜂鸣器随之停止
+□ 自动模式根据温度调节风力
+□ 手动模式保持设定档位
+□ ESP8266连接WiFi和巴法云成功，远程指令生效
+
+═══════════════════════════════════════════
+🎉 项目已完成！祝调试顺利！
+═══════════════════════════════════════════
